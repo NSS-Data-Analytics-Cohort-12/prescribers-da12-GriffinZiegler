@@ -56,7 +56,7 @@ GROUP BY GROUPING SETS ((specialty_description),());
 -- Pain Management               |                |       72487|
 -- Interventional Pain Management|                |       57239|
 
-SELECT COALESCE(specialty_description, '') AS specialty_description, COALESCE(opioid_drug_flag, ''), SUM(total_claim_count) AS total_claims
+SELECT COALESCE(specialty_description, '') AS specialty_description, COALESCE(opioid_drug_flag, '') AS opioid_drug_flag, SUM(total_claim_count) AS total_claims
 FROM prescriber AS pr
 JOIN prescription AS pn ON pr.npi = pn.npi
 JOIN drug as dr ON pn.drug_name = dr.drug_name
@@ -65,9 +65,30 @@ GROUP BY GROUPING SETS ((specialty_description),(opioid_drug_flag),())
 
 -- 5. Modify your query by replacing the GROUPING SETS with ROLLUP(opioid_drug_flag, specialty_description). How is the result different from the output from the previous query?
 
+SELECT COALESCE(specialty_description, '') AS specialty_description, COALESCE(opioid_drug_flag, '') AS opioid_drug_flag, SUM(total_claim_count) AS total_claims
+FROM prescriber AS pr
+JOIN prescription AS pn ON pr.npi = pn.npi
+JOIN drug as dr ON pn.drug_name = dr.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY ROLLUP(opioid_drug_flag, specialty_description)
+
 -- 6. Switch the order of the variables inside the ROLLUP. That is, use ROLLUP(specialty_description, opioid_drug_flag). How does this change the result?
 
+SELECT COALESCE(specialty_description, '') AS specialty_description, COALESCE(opioid_drug_flag, '') AS opioid_drug_flag, SUM(total_claim_count) AS total_claims
+FROM prescriber AS pr
+JOIN prescription AS pn ON pr.npi = pn.npi
+JOIN drug as dr ON pn.drug_name = dr.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY ROLLUP(specialty_description, opioid_drug_flag)
+
 -- 7. Finally, change your query to use the CUBE function instead of ROLLUP. How does this impact the output?
+
+SELECT COALESCE(specialty_description, '') AS specialty_description, COALESCE(opioid_drug_flag, '') AS opioid_drug_flag, SUM(total_claim_count) AS total_claims
+FROM prescriber AS pr
+JOIN prescription AS pn ON pr.npi = pn.npi
+JOIN drug as dr ON pn.drug_name = dr.drug_name
+WHERE specialty_description IN ('Interventional Pain Management', 'Pain Management')
+GROUP BY CUBE(opioid_drug_flag, specialty_description)
 
 -- 8. In this question, your goal is to create a pivot table showing for each of the 4 largest cities in Tennessee (Nashville, Memphis, Knoxville, and Chattanooga), the total claim count for each of six common types of opioids: Hydrocodone, Oxycodone, Oxymorphone, Morphine, Codeine, and Fentanyl. For the purpose of this question, we will put a drug into one of the six listed categories if it has the category name as part of its generic name. For example, we could count both of "ACETAMINOPHEN WITH CODEINE" and "CODEINE SULFATE" as being "CODEINE" for the purposes of this question.
 
