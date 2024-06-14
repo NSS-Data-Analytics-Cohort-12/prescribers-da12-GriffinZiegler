@@ -46,8 +46,24 @@ ORDER BY count_spec_desc DESC;
 
 --     d. **Difficult Bonus:** *Do not attempt until you have solved all other problems!* For each specialty, report the percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
 
+SELECT p.specialty_description,
+SUM(pr.total_claim_count) AS total_claim_count,
+SUM(CASE WHEN dr.opioid_drug_flag = 'Y' THEN pr.total_claim_count ELSE 0 END) AS opioid_claim_count,
+ROUND((SUM(CASE WHEN dr.opioid_drug_flag = 'Y' THEN pr.total_claim_count ELSE 0 END) /
+SUM(pr.total_claim_count)) * 100, 2) AS opioid_percentage
+FROM prescriber p
+JOIN prescription pr USING(npi)
+JOIN drug dr USING(drug_name)
+GROUP BY p.specialty_description
+ORDER BY opioid_percentage DESC;
+
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
+
+SELECT generic_name, total_drug_cost
+FROM prescription AS pr
+JOIN drug USING(drug_name)
+ORDER BY total_drug_cost DESC
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
 
