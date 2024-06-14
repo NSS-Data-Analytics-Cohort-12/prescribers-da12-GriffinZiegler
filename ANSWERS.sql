@@ -1,7 +1,6 @@
 -- ## Prescribers Database
 
 -- For this exericse, you'll be working with a database derived from the [Medicare Part D Prescriber Public Use File](https://www.hhs.gov/guidance/document/medicare-provider-utilization-and-payment-data-part-d-prescriber-0). More information about the data is contained in the Methodology PDF file. See also the included entity-relationship diagram.
-
 -- 1. 
 --     a. Which prescriber had the highest total number of claims (totaled over all drugs)? Report the npi and the total number of claims.
 
@@ -20,10 +19,21 @@ ORDER BY total_claim_count DESC;
 -- 2. 
 --     a. Which specialty had the most total number of claims (totaled over all drugs)?
 
-
-
+SELECT p.specialty_description, SUM(pr.total_claim_count) AS total_claim_count
+FROM prescriber p
+JOIN prescription pr USING(npi)
+GROUP BY p.specialty_description, pr.npi
+ORDER BY total_claim_count DESC;
 
 --     b. Which specialty had the most total number of claims for opioids?
+
+SELECT p.specialty_description, SUM(pr.total_claim_count) AS total_claim_count
+FROM prescriber AS p
+JOIN prescription AS pr USING(npi)
+JOIN drug AS dr USING(drug_name)
+WHERE dr.opioid_drug_flag = 'Y'
+GROUP BY p.specialty_description
+ORDER BY total_claim_count DESC;
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
