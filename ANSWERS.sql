@@ -134,13 +134,13 @@ WHERE total_claim_count >= 3000;
 
 --     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
 
-SELECT pr.drug_name, pr.total_claim_count,
+SELECT pn.drug_name, pn.total_claim_count,
     CASE WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
         ELSE 'Non_Opioid'
     END AS is_opioid
 FROM prescription AS pn
 JOIN drug AS dr USING (drug_name)
-WHERE pr.total_claim_count >= 3000;
+WHERE pn.total_claim_count >= 3000;
 
 --     c. Add another column to you answer from the previous part which gives the prescriber first and last name associated with each row.
 
@@ -155,14 +155,67 @@ WHERE pn.total_claim_count >= 3000;
 
 -- 7. The goal of this exercise is to generate a full list of all pain management specialists in Nashville and the number of claims they had for each opioid. **Hint:** The results from all 3 parts will have 637 rows.
 
---     a. First, create a list of all npi/drug_name combinations for pain management specialists (specialty_description = 'Pain Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y'). **Warning:** Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't need the claims numbers yet.
+--     a. First, create a list of all npi/drug_name combinations for pain management specialists (specialty_description = 'Pain Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y').
+-- **Warning:** Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't need the claims numbers yet.
+
+SELECT pr.npi, dr.drug_name
+FROM prescriber AS pr
+CROSS JOIN drug AS dr 
+WHERE pr.specialty_description = 'Pain Management' 
+    AND pr.nppes_provider_city = 'NASHVILLE'
+    AND dr.opioid_drug_flag = 'Y';
 
 --     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
-    
+
+SELECT pr.npi, dr.drug_name, total_claim_count
+FROM prescriber AS pr
+CROSS JOIN drug AS dr
+LEFT JOIN prescription AS pn USING(npi)
+WHERE pr.specialty_description = 'Pain Management' 
+    AND pr.nppes_provider_city = 'NASHVILLE'
+    AND dr.opioid_drug_flag = 'Y';
+
 --     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0. Hint - Google the COALESCE function.
 
 
+-- BONUS --
 
+-- 1. How many npi numbers appear in the prescriber table but not in the prescription table?
+
+SELECT COUNT(DISTINCT pr.npi) AS not_in_pn
+FROM prescriber AS pr
+LEFT JOIN prescription AS pn USING(npi)
+WHERE pn.npi IS NULL;
+
+-- 2.
+--     a. Find the top five drugs (generic_name) prescribed by prescribers with the specialty of Family Practice.
+
+SELECT dr.generic_name, COUNT(*) AS prescription_count
+FROM prescriber AS pr
+JOIN prescription AS pn ON pr.npi = pn.npi
+JOIN drug AS dr ON pn.drug_name = dr.drug_name
+WHERE pr.specialty_description = 'Family Practice'
+GROUP BY dr.generic_name
+ORDER BY prescription_count DESC
+LIMIT 5;
+
+--     b. Find the top five drugs (generic_name) prescribed by prescribers with the specialty of Cardiology.
+
+--     c. Which drugs are in the top five prescribed by Family Practice prescribers and Cardiologists? Combine what you did for parts a and b into a single query to answer this question.
+
+-- 3. Your goal in this question is to generate a list of the top prescribers in each of the major metropolitan areas of Tennessee.
+--     a. First, write a query that finds the top 5 prescribers in Nashville in terms of the total number of claims (total_claim_count) across all drugs. Report the npi, the total number of claims, and include a column showing the city.
+    
+--     b. Now, report the same for Memphis.
+    
+--     c. Combine your results from a and b, along with the results for Knoxville and Chattanooga.
+
+-- 4. Find all counties which had an above-average number of overdose deaths. Report the county name and number of overdose deaths.
+
+-- 5.
+--     a. Write a query that finds the total population of Tennessee.
+    
+--     b. Build off of the query that you wrote in part a to write a query that returns for each county that county's name, its population, and the percentage of the total population of Tennessee that is contained in that county.
 
 -- -- In this set of exercises you are going to explore additional ways to group and organize the output of a query when using postgres. 
 
