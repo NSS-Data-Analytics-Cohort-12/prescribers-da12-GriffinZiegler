@@ -111,6 +111,13 @@ WHERE state = 'TN'
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 
+SELECT cbsa.cbsaname, SUM(pop.population) AS combined_population
+FROM cbsa
+JOIN fips_county AS fips USING (fipscounty)
+JOIN population AS pop USING (fipscounty)
+GROUP BY cbsa.cbsaname
+ORDER BY combined_population DESC;
+	
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
 
 -- 6. 
