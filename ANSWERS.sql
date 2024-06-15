@@ -60,17 +60,38 @@ ORDER BY opioid_percentage DESC;
 -- 3. 
 --     a. Which drug (generic_name) had the highest total drug cost?
 
-SELECT generic_name, total_drug_cost
+SELECT generic_name, total_drug_cost ::MONEY
 FROM prescription AS pr
 JOIN drug USING(drug_name)
 ORDER BY total_drug_cost DESC
+LIMIT 1;
 
 --     b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
 
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs. **Hint:** You may want to use a CASE expression for this. See https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-case/ 
 
+SELECT dr.drug_name, 
+    CASE
+        WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
+        WHEN dr.antibiotic_drug_flag = 'Y' THEN 'Antibiotic'
+        ELSE 'Neither'
+    END AS drug_type
+FROM prescription AS pr
+JOIN drug AS dr 
+USING (drug_name);
+
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
+
+SELECT dr.drug_name, 
+    CASE
+        WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
+        WHEN dr.antibiotic_drug_flag = 'Y' THEN 'Antibiotic'
+        ELSE 'Neither'
+    END AS drug_type
+FROM prescription AS pr
+JOIN drug AS dr 
+USING (drug_name);
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
