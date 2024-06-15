@@ -135,15 +135,23 @@ WHERE total_claim_count >= 3000;
 --     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
 
 SELECT pr.drug_name, pr.total_claim_count,
-    CASE 
-        WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
+    CASE WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
         ELSE 'Non_Opioid'
     END AS is_opioid
-FROM prescription AS pr
+FROM prescription AS pn
 JOIN drug AS dr USING (drug_name)
 WHERE pr.total_claim_count >= 3000;
 
 --     c. Add another column to you answer from the previous part which gives the prescriber first and last name associated with each row.
+
+SELECT pr.nppes_provider_first_name AS first_name, pr.nppes_provider_last_org_name AS last_name, pn.drug_name, pn.total_claim_count,
+    CASE WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
+        ELSE 'Non_Opioid'
+    END AS is_opioid
+FROM prescription AS pn
+JOIN drug AS dr USING (drug_name)
+JOIN prescriber AS pr USING(npi)
+WHERE pn.total_claim_count >= 3000;
 
 -- 7. The goal of this exercise is to generate a full list of all pain management specialists in Nashville and the number of claims they had for each opioid. **Hint:** The results from all 3 parts will have 637 rows.
 
