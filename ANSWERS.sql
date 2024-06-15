@@ -83,18 +83,31 @@ USING (drug_name);
 
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
 
-SELECT dr.drug_name, 
-    CASE
-        WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
-        WHEN dr.antibiotic_drug_flag = 'Y' THEN 'Antibiotic'
-        ELSE 'Neither'
-    END AS drug_type
-FROM prescription AS pr
-JOIN drug AS dr 
-USING (drug_name);
+SELECT drug_type, SUM(total_drug_cost)::MONEY AS total_cost
+FROM ( 
+	SELECT 
+        CASE
+            WHEN dr.opioid_drug_flag = 'Y' THEN 'Opioid'
+            WHEN dr.antibiotic_drug_flag = 'Y' THEN 'Antibiotic'
+            ELSE 'Neither'
+        END AS drug_type,
+        pr.total_drug_cost
+    FROM 
+        prescription AS pr
+    JOIN 
+        drug AS dr 
+    USING (drug_name)
+) AS drug_costs
+WHERE drug_type IN ('Opioid', 'Antibiotic')
+GROUP BY drug_type;
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
+
+SELECT count(DISTINCT cbsa)
+FROM cbsa
+JOIN fips_county USING(fipscounty)
+WHERE state = 'TN'
 
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
 
