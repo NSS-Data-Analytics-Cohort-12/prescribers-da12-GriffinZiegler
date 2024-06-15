@@ -201,6 +201,15 @@ LIMIT 5;
 
 --     b. Find the top five drugs (generic_name) prescribed by prescribers with the specialty of Cardiology.
 
+SELECT dr.generic_name, COUNT(*) AS prescription_count
+FROM prescriber AS pr
+JOIN prescription AS pn ON pr.npi = pn.npi
+JOIN drug AS dr ON pn.drug_name = dr.drug_name
+WHERE pr.specialty_description = 'Cardiology'
+GROUP BY dr.generic_name
+ORDER BY prescription_count DESC
+LIMIT 5;
+
 --     c. Which drugs are in the top five prescribed by Family Practice prescribers and Cardiologists? Combine what you did for parts a and b into a single query to answer this question.
 
 -- 3. Your goal in this question is to generate a list of the top prescribers in each of the major metropolitan areas of Tennessee.
